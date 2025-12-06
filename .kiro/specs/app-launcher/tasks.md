@@ -91,7 +91,7 @@
   - Test error message display
   - _Requirements: 1.1, 1.3, 2.5_
 
-- [ ] 5. Implement hotkey manager
+- [x] 5. Implement hotkey manager
   - Create HotkeyManager struct with callback function
   - Implement Register() to register global Windows hotkey
   - Implement Start() to begin listening for hotkey events
@@ -100,7 +100,9 @@
   - Parse hotkey string format (e.g., "Ctrl+Space", "Alt+Space")
   - _Requirements: 1.1, 1.3_
 
-- [ ]* 5.1 Write unit tests for hotkey manager
+
+
+- [-] 5.1 Write unit tests for hotkey manager
   - Test hotkey registration with valid format
   - Test handling invalid hotkey format
   - Test callback invocation on hotkey press
