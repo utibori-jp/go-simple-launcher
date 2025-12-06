@@ -15,7 +15,7 @@
   - Add validation for required fields (command name, path)
   - _Requirements: 3.1, 3.2, 4.1, 4.2, 4.3_
 
-- [ ]* 2.1 Write property test for configuration loading
+- [x] 2.1 Write property test for configuration loading
   - **Property 7: Valid JSON configurations load completely**
   - **Validates: Requirements 3.2**
 
