@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"app-launcher/config"
+	"app-launcher/logger"
 )
 
 type ConfigProvider interface {
@@ -29,23 +30,32 @@ func NewExecutor(cfg ConfigProvider) *Executor {
 // Execute looks up a command by name and launches the corresponding application
 // Returns an error if the command is not found or if the application fails to launch
 func (e *Executor) Execute(commandName string) error {
+	logger.Info("Attempting to execute command: '%s'", commandName)
+
 	// Lookup command in configuration
 	cmd, exists := e.config.GetCommand(commandName)
 	if !exists {
-		return fmt.Errorf("command '%s' not found", commandName)
+		err := fmt.Errorf("command '%s' not found", commandName)
+		logger.Error("Command execution failed: %v", err)
+		return err
 	}
 
 	// Normalize path for Windows (convert forward slashes to backslashes)
 	normalizedPath := normalizePath(cmd.Path)
+	logger.Info("Normalized path for '%s': %s (args: %v)", commandName, normalizedPath, cmd.Args)
 
 	// Create the command with arguments
 	execCmd := exec.Command(normalizedPath, cmd.Args...)
 
 	// Start the process without blocking (don't wait for it to complete)
 	if err := execCmd.Start(); err != nil {
-		return fmt.Errorf("failed to launch '%s': %w", commandName, err)
+		// Provide detailed error information
+		detailedErr := fmt.Errorf("failed to launch '%s': %w", commandName, err)
+		logger.Error("Application launch failed for '%s' (path: %s): %v", commandName, normalizedPath, err)
+		return detailedErr
 	}
 
+	logger.Info("Successfully launched application for command '%s' (PID: %d)", commandName, execCmd.Process.Pid)
 	// Return immediately without waiting for the process to complete
 	return nil
 }

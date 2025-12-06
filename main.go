@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 
@@ -11,6 +10,7 @@ import (
 	"app-launcher/executor"
 	"app-launcher/gui"
 	"app-launcher/hotkey"
+	"app-launcher/logger"
 
 	"fyne.io/fyne/v2/dialog"
 )
@@ -25,19 +25,26 @@ type App struct {
 
 // NewApp creates and initializes a new App with all components
 func NewApp(configPath, hotkeyStr string) (*App, error) {
+	logger.Info("Initializing application launcher")
+	logger.Info("Configuration path: %s", configPath)
+	logger.Info("Hotkey: %s", hotkeyStr)
+
 	// Initialize ConfigManager
 	configManager, err := config.NewConfigManager(configPath)
 	if err != nil {
+		logger.Error("Failed to create config manager: %v", err)
 		return nil, fmt.Errorf("failed to create config manager: %w", err)
 	}
 
 	// Load configuration
 	if err := configManager.Load(); err != nil {
+		logger.Error("Failed to load configuration: %v", err)
 		return nil, fmt.Errorf("failed to load configuration: %w", err)
 	}
 
 	// Initialize Executor
 	exec := executor.NewExecutor(configManager)
+	logger.Info("Executor initialized")
 
 	// Initialize GUIManager
 	guiManager := gui.NewGUIManager(exec)
@@ -48,14 +55,17 @@ func NewApp(configPath, hotkeyStr string) (*App, error) {
 		guiManager.Toggle()
 	})
 	if err != nil {
+		logger.Error("Failed to create hotkey manager: %v", err)
 		return nil, fmt.Errorf("failed to create hotkey manager: %w", err)
 	}
 
 	// Register the hotkey
 	if err := hotkeyManager.Register(hotkeyStr); err != nil {
+		logger.Error("Failed to register hotkey: %v", err)
 		return nil, fmt.Errorf("failed to register hotkey: %w", err)
 	}
 
+	logger.Info("Application launcher initialized successfully")
 	return &App{
 		config:   configManager,
 		executor: exec,
@@ -66,22 +76,29 @@ func NewApp(configPath, hotkeyStr string) (*App, error) {
 
 // Run starts the hotkey listener and Fyne application
 func (a *App) Run() error {
+	logger.Info("Starting application")
+
 	// Start hotkey listener
 	if err := a.hotkey.Start(); err != nil {
+		logger.Error("Failed to start hotkey listener: %v", err)
 		return fmt.Errorf("failed to start hotkey listener: %w", err)
 	}
 
+	logger.Info("Application running, waiting for hotkey events")
 	// Run the GUI (this blocks until the app is closed)
 	a.gui.Run()
 
+	logger.Info("Application shutting down")
 	return nil
 }
 
 // Shutdown performs graceful cleanup of all components
 func (a *App) Shutdown() {
+	logger.Info("Performing graceful shutdown")
 	if a.hotkey != nil {
 		a.hotkey.Stop()
 	}
+	logger.Info("Shutdown complete")
 }
 
 // getDefaultConfigPath returns the default configuration file path
@@ -101,14 +118,16 @@ func main() {
 	hotkeyStr := flag.String("hotkey", "Alt+Space", "Hotkey to activate launcher (e.g., 'Ctrl+Space', 'Alt+Space')")
 	flag.Parse()
 
+	logger.Info("Application launcher starting")
+	logger.Info("Command-line arguments: config=%s, hotkey=%s", *configPath, *hotkeyStr)
+
 	// The hotkey library requires mainthread initialization
 	hotkey.Init(func() {
 		// Create the app
 		app, err := NewApp(*configPath, *hotkeyStr)
 		if err != nil {
-			// Show error dialog and exit
-			log.Printf("Error: %v\n", err)
-			fmt.Fprintf(os.Stderr, "Failed to initialize launcher: %v\n", err)
+			// Log detailed error information
+			logger.Fatal("Failed to initialize launcher: %v", err)
 
 			// Try to show GUI error if possible
 			if app != nil && app.gui != nil {
@@ -123,8 +142,7 @@ func main() {
 
 		// Run the application
 		if err := app.Run(); err != nil {
-			log.Printf("Error running application: %v\n", err)
-			fmt.Fprintf(os.Stderr, "Application error: %v\n", err)
+			logger.Fatal("Application error: %v", err)
 			os.Exit(1)
 		}
 	})

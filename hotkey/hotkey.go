@@ -1,6 +1,7 @@
 package hotkey
 
 import (
+	"app-launcher/logger"
 	"fmt"
 	"strings"
 
@@ -18,9 +19,12 @@ type HotkeyManager struct {
 // NewHotkeyManager creates a new hotkey manager with the specified callback
 func NewHotkeyManager(callback func()) (*HotkeyManager, error) {
 	if callback == nil {
-		return nil, fmt.Errorf("callback function cannot be nil")
+		err := fmt.Errorf("callback function cannot be nil")
+		logger.Error("Failed to create HotkeyManager: %v", err)
+		return nil, err
 	}
 
+	logger.Info("Creating HotkeyManager")
 	return &HotkeyManager{
 		callback: callback,
 		stopChan: make(chan struct{}),
@@ -30,14 +34,20 @@ func NewHotkeyManager(callback func()) (*HotkeyManager, error) {
 // Register registers a global hotkey with the specified key combination
 // Supported formats: "Ctrl+Space", "Alt+Space", "Ctrl+Alt+L", etc.
 func (h *HotkeyManager) Register(hotkeyStr string) error {
+	logger.Info("Attempting to register hotkey: %s", hotkeyStr)
+
 	if hotkeyStr == "" {
-		return fmt.Errorf("hotkey string cannot be empty")
+		err := fmt.Errorf("hotkey string cannot be empty")
+		logger.Error("Hotkey registration failed: %v", err)
+		return err
 	}
 
 	// Parse the hotkey string
 	modifiers, key, err := parseHotkey(hotkeyStr)
 	if err != nil {
-		return fmt.Errorf("invalid hotkey format: %w", err)
+		detailedErr := fmt.Errorf("invalid hotkey format: %w", err)
+		logger.Error("Hotkey registration failed for '%s': %v", hotkeyStr, detailedErr)
+		return detailedErr
 	}
 
 	// Create the hotkey
@@ -45,9 +55,12 @@ func (h *HotkeyManager) Register(hotkeyStr string) error {
 
 	// Try to register the hotkey
 	if err := h.hk.Register(); err != nil {
-		return fmt.Errorf("failed to register hotkey %s: %w (hotkey may already be in use)", hotkeyStr, err)
+		detailedErr := fmt.Errorf("failed to register hotkey %s: %w (hotkey may already be in use)", hotkeyStr, err)
+		logger.Error("Hotkey registration failed: %v", detailedErr)
+		return detailedErr
 	}
 
+	logger.Info("Successfully registered hotkey: %s", hotkeyStr)
 	return nil
 }
 
@@ -55,8 +68,12 @@ func (h *HotkeyManager) Register(hotkeyStr string) error {
 // This function blocks until Stop() is called
 func (h *HotkeyManager) Start() error {
 	if h.hk == nil {
-		return fmt.Errorf("hotkey not registered, call Register() first")
+		err := fmt.Errorf("hotkey not registered, call Register() first")
+		logger.Error("Failed to start hotkey listener: %v", err)
+		return err
 	}
+
+	logger.Info("Starting hotkey listener")
 
 	// Listen for hotkey events in a goroutine
 	go func() {
@@ -64,11 +81,13 @@ func (h *HotkeyManager) Start() error {
 			select {
 			case <-h.hk.Keydown():
 				// Hotkey was pressed, invoke callback
+				logger.Info("Hotkey pressed, invoking callback")
 				if h.callback != nil {
 					h.callback()
 				}
 			case <-h.stopChan:
 				// Stop signal received
+				logger.Info("Hotkey listener stopped")
 				return
 			}
 		}
@@ -79,8 +98,10 @@ func (h *HotkeyManager) Start() error {
 
 // Stop unregisters the hotkey and stops listening for events
 func (h *HotkeyManager) Stop() {
+	logger.Info("Stopping hotkey manager")
 	if h.hk != nil {
 		h.hk.Unregister()
+		logger.Info("Hotkey unregistered")
 	}
 	// Only close the channel if it's not already closed
 	select {

@@ -2,6 +2,7 @@ package gui
 
 import (
 	"app-launcher/executor"
+	"app-launcher/logger"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -37,6 +38,8 @@ func NewGUIManager(exec *executor.Executor) *GUIManager {
 
 // Initialize creates the Fyne window with text entry widget and configures it
 func (g *GUIManager) Initialize() {
+	logger.Info("Initializing GUI manager")
+
 	// Create Fyne application
 	g.app = app.New()
 
@@ -51,6 +54,7 @@ func (g *GUIManager) Initialize() {
 	// Set up key event handler for Escape
 	g.window.Canvas().SetOnTypedKey(func(key *fyne.KeyEvent) {
 		if key.Name == fyne.KeyEscape {
+			logger.Info("Escape key pressed, hiding window")
 			g.Hide()
 		}
 	})
@@ -70,11 +74,13 @@ func (g *GUIManager) Initialize() {
 
 	// Don't show window initially
 	g.visible = false
+	logger.Info("GUI manager initialized successfully")
 }
 
 // Show displays the window and focuses the input field
 func (g *GUIManager) Show() {
 	if !g.visible {
+		logger.Info("Showing launcher window")
 		g.window.Show()
 		g.visible = true
 
@@ -90,6 +96,7 @@ func (g *GUIManager) Show() {
 // Hide hides the window
 func (g *GUIManager) Hide() {
 	if g.visible {
+		logger.Info("Hiding launcher window")
 		g.window.Hide()
 		g.visible = false
 	}
@@ -106,12 +113,15 @@ func (g *GUIManager) Toggle() {
 
 // ShowError displays an error message in the GUI
 func (g *GUIManager) ShowError(message string) {
+	logger.Warn("Displaying error to user: %s", message)
 	g.errorLabel.SetText(message)
 	g.errorLabel.Show()
 }
 
 // handleCommandSubmit processes command submission when Enter is pressed
 func (g *GUIManager) handleCommandSubmit(commandName string) {
+	logger.Info("User submitted command: '%s'", commandName)
+
 	// Clear any previous error
 	g.errorLabel.Hide()
 
@@ -120,9 +130,11 @@ func (g *GUIManager) handleCommandSubmit(commandName string) {
 
 	if err != nil {
 		// Show error message and keep window visible
+		logger.Error("Command execution failed, showing error to user: %v", err)
 		g.ShowError(err.Error())
 	} else {
 		// Successful launch - hide the window
+		logger.Info("Command executed successfully, hiding window")
 		g.Hide()
 	}
 }

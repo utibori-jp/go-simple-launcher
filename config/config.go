@@ -1,6 +1,7 @@
 package config
 
 import (
+	"app-launcher/logger"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -26,9 +27,12 @@ type ConfigManager struct {
 // NewConfigManager creates a new ConfigManager with the specified config file path
 func NewConfigManager(configPath string) (*ConfigManager, error) {
 	if configPath == "" {
-		return nil, fmt.Errorf("config path cannot be empty")
+		err := fmt.Errorf("config path cannot be empty")
+		logger.Error("Failed to create ConfigManager: %v", err)
+		return nil, err
 	}
 
+	logger.Info("Creating ConfigManager with path: %s", configPath)
 	return &ConfigManager{
 		configPath: configPath,
 		commands:   make(map[string]Command),
@@ -37,32 +41,42 @@ func NewConfigManager(configPath string) (*ConfigManager, error) {
 
 // Load reads and parses the JSON configuration file
 func (c *ConfigManager) Load() error {
+	logger.Info("Loading configuration from: %s", c.configPath)
+
 	// Read the configuration file
 	data, err := os.ReadFile(c.configPath)
 	if err != nil {
+		logger.Error("Failed to read configuration file '%s': %v", c.configPath, err)
 		return fmt.Errorf("failed to read config file: %w", err)
 	}
 
 	// Parse JSON
 	var cfg Config
 	if err := json.Unmarshal(data, &cfg); err != nil {
+		logger.Error("Failed to parse configuration file '%s': %v", c.configPath, err)
 		return fmt.Errorf("failed to parse config file: %w", err)
 	}
 
 	// Validate and store commands
 	if cfg.Commands == nil {
-		return fmt.Errorf("configuration must contain 'commands' field")
+		err := fmt.Errorf("configuration must contain 'commands' field")
+		logger.Error("Invalid configuration structure in '%s': %v", c.configPath, err)
+		return err
 	}
 
 	for name, cmd := range cfg.Commands {
 		// Validate command name
 		if name == "" {
-			return fmt.Errorf("command name cannot be empty")
+			err := fmt.Errorf("command name cannot be empty")
+			logger.Error("Configuration validation failed: %v", err)
+			return err
 		}
 
 		// Validate required fields
 		if cmd.Path == "" {
-			return fmt.Errorf("command '%s' must have a non-empty path", name)
+			err := fmt.Errorf("command '%s' must have a non-empty path", name)
+			logger.Error("Configuration validation failed: %v", err)
+			return err
 		}
 
 		// Args can be nil or empty, but if present must be a valid slice
@@ -73,11 +87,15 @@ func (c *ConfigManager) Load() error {
 		c.commands[name] = cmd
 	}
 
+	logger.Info("Successfully loaded %d commands from configuration", len(c.commands))
 	return nil
 }
 
 // GetCommand retrieves a command by name with O(1) lookup
 func (c *ConfigManager) GetCommand(name string) (Command, bool) {
 	cmd, exists := c.commands[name]
+	if !exists {
+		logger.Warn("Command lookup failed: '%s' not found in configuration", name)
+	}
 	return cmd, exists
 }
