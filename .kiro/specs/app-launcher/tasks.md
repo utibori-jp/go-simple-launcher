@@ -129,7 +129,7 @@
   - Log all execution attempts for audit purposes
   - _Requirements: 2.4, 3.3, 5.3_
 
-- [ ] 8. Create sample configuration and documentation
+- [x] 8. Create sample configuration and documentation
   - Create example config.json with common Windows applications
   - Add comments in code explaining configuration format
   - Document command-line flags (--config, --hotkey)

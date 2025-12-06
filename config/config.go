@@ -7,13 +7,51 @@ import (
 	"os"
 )
 
-// Command represents a single command configuration with path and arguments
+// Command represents a single command configuration with path and arguments.
+//
+// Configuration Format:
+// The command structure maps a command name to an executable path and optional arguments.
+//
+// Example JSON:
+//
+//	{
+//	  "commands": {
+//	    "chrome": {
+//	      "path": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+//	      "args": []
+//	    },
+//	    "vscode": {
+//	      "path": "C:\\Program Files\\Microsoft VS Code\\Code.exe",
+//	      "args": ["-n"]
+//	    }
+//	  }
+//	}
+//
+// Fields:
+//   - Path: Absolute path to the executable. Forward slashes (/) are automatically
+//     converted to backslashes (\) on Windows for compatibility.
+//   - Args: Array of command-line arguments to pass to the application.
+//     Can be empty ([]) if no arguments are needed.
 type Command struct {
-	Path string   `json:"path"`
-	Args []string `json:"args"`
+	Path string   `json:"path"` // Absolute path to executable
+	Args []string `json:"args"` // Command-line arguments (can be empty)
 }
 
-// Config represents the root configuration structure
+// Config represents the root configuration structure.
+//
+// The configuration file must be valid JSON with a "commands" object at the root.
+// Each key in "commands" is the command name that users will type in the launcher,
+// and the value is a Command object specifying the executable path and arguments.
+//
+// Configuration File Location:
+//   - Default: %APPDATA%\launcher\config.json
+//   - Override with --config flag: launcher.exe --config="C:\path\to\config.json"
+//
+// Validation Rules:
+//   - Command names must be non-empty strings
+//   - Each command must have a non-empty "path" field
+//   - The "args" field can be empty but must be present
+//   - Duplicate command names are not allowed (enforced by JSON object structure)
 type Config struct {
 	Commands map[string]Command `json:"commands"`
 }

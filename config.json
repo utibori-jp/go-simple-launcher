@@ -1,0 +1,56 @@
+{
+  "commands": {
+    "chrome": {
+      "path": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+      "args": []
+    },
+    "firefox": {
+      "path": "C:\\Program Files\\Mozilla Firefox\\firefox.exe",
+      "args": []
+    },
+    "vscode": {
+      "path": "C:\\Program Files\\Microsoft VS Code\\Code.exe",
+      "args": ["-n"]
+    },
+    "notepad": {
+      "path": "C:\\Windows\\System32\\notepad.exe",
+      "args": []
+    },
+    "cmd": {
+      "path": "C:\\Windows\\System32\\cmd.exe",
+      "args": []
+    },
+    "powershell": {
+      "path": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+      "args": []
+    },
+    "explorer": {
+      "path": "C:\\Windows\\explorer.exe",
+      "args": []
+    },
+    "calc": {
+      "path": "C:\\Windows\\System32\\calc.exe",
+      "args": []
+    },
+    "paint": {
+      "path": "C:\\Windows\\System32\\mspaint.exe",
+      "args": []
+    },
+    "wordpad": {
+      "path": "C:\\Program Files\\Windows NT\\Accessories\\wordpad.exe",
+      "args": []
+    },
+    "outlook": {
+      "path": "C:\\Program Files\\Microsoft Office\\root\\Office16\\OUTLOOK.EXE",
+      "args": []
+    },
+    "excel": {
+      "path": "C:\\Program Files\\Microsoft Office\\root\\Office16\\EXCEL.EXE",
+      "args": []
+    },
+    "word": {
+      "path": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+      "args": []
+    }
+  }
+}

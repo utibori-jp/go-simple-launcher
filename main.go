@@ -114,6 +114,16 @@ func getDefaultConfigPath() string {
 
 func main() {
 	// Parse command-line flags
+	//
+	// Available flags:
+	//   --config: Path to the JSON configuration file
+	//             Default: %APPDATA%\launcher\config.json
+	//             Example: --config="C:\custom\config.json"
+	//
+	//   --hotkey: Global hotkey to activate the launcher
+	//             Default: Alt+Space
+	//             Supported formats: "Alt+Space", "Ctrl+Space", "Ctrl+Alt+L", etc.
+	//             Example: --hotkey="Ctrl+Alt+L"
 	configPath := flag.String("config", getDefaultConfigPath(), "Path to configuration file")
 	hotkeyStr := flag.String("hotkey", "Alt+Space", "Hotkey to activate launcher (e.g., 'Ctrl+Space', 'Alt+Space')")
 	flag.Parse()
