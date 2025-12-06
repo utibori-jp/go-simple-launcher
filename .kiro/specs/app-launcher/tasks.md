@@ -26,8 +26,7 @@
   - Test handling empty configuration
   - _Requirements: 3.1, 3.2, 3.3_
 
-- [ ] 3. Implement application executor
-
+- [x] 3. Implement application executor
   - Create Executor struct with reference to ConfigManager
   - Implement Execute() method to lookup commands and launch applications
   - Use exec.Command() to start processes without blocking
@@ -35,19 +34,27 @@
   - Return detailed errors for launch failures
   - _Requirements: 2.1, 2.2, 5.1, 5.2, 5.4_
 
-- [ ]* 3.1 Write property test for valid command execution
+- [ ] 3.1 Write property test for valid command execution
+
+
   - **Property 3: Valid commands execute correctly**
   - **Validates: Requirements 2.1, 2.2, 5.1, 5.2**
 
-- [ ]* 3.2 Write property test for non-blocking execution
+- [ ] 3.2 Write property test for non-blocking execution
+
+
   - **Property 10: Application launch is non-blocking**
   - **Validates: Requirements 5.4**
 
-- [ ]* 3.3 Write property test for launch failure handling
+- [ ] 3.3 Write property test for launch failure handling
+
+
   - **Property 9: Launch failures show error details**
   - **Validates: Requirements 5.3**
 
-- [ ]* 3.4 Write unit tests for executor
+- [ ] 3.4 Write unit tests for executor
+
+
   - Test executing command without arguments
   - Test executing command with multiple arguments
   - Test handling non-existent executable path
