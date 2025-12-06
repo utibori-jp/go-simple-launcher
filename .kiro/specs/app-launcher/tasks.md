@@ -101,14 +101,13 @@
   - _Requirements: 1.1, 1.3_
 
 
-
-- [-] 5.1 Write unit tests for hotkey manager
+- [x] 5.1 Write unit tests for hotkey manager
   - Test hotkey registration with valid format
   - Test handling invalid hotkey format
   - Test callback invocation on hotkey press
   - _Requirements: 1.1_
 
-- [ ] 6. Implement main application and integration
+- [x] 6. Implement main application and integration
   - Create App struct to coordinate all components
   - Implement NewApp() to initialize ConfigManager, Executor, GUIManager, HotkeyManager
   - Load configuration file from default location (%APPDATA%\launcher\config.json)
@@ -119,7 +118,7 @@
   - Handle configuration errors with error dialogs and exit
   - _Requirements: 3.1, 3.3, 6.4_
 
-- [ ]* 6.1 Write property test for invalid configuration handling
+- [x] 6.1 Write property test for invalid configuration handling
   - **Property 8: Invalid configurations fail gracefully**
   - **Validates: Requirements 3.3**
 

@@ -69,7 +69,7 @@ func TestProperty_ValidJSONConfigurationsLoadCompletely(t *testing.T) {
 
 				// Verify path matches
 				if loadedCmd.Path != expectedCmd.Path {
-					t.Logf("Command '%s' path mismatch: expected '%s', got '%s'", 
+					t.Logf("Command '%s' path mismatch: expected '%s', got '%s'",
 						name, expectedCmd.Path, loadedCmd.Path)
 					return false
 				}
@@ -254,9 +254,182 @@ func TestLoadEmptyConfiguration(t *testing.T) {
 	}
 }
 
+// **Feature: app-launcher, Property 8: Invalid configurations fail gracefully**
+// **Validates: Requirements 3.3**
+// For any missing or malformed configuration file, the launcher should display
+// a clear error message and exit without crashing.
+func TestProperty_InvalidConfigurationsFailGracefully(t *testing.T) {
+	properties := gopter.NewProperties(nil)
+
+	properties.Property("missing config files fail with clear error", prop.ForAll(
+		func(filename string) bool {
+			// Create a path to a non-existent file
+			tmpDir := t.TempDir()
+			nonExistentPath := filepath.Join(tmpDir, filename)
+
+			// Create ConfigManager with non-existent file
+			cm, err := NewConfigManager(nonExistentPath)
+			if err != nil {
+				// Should not fail at creation, only at Load()
+				t.Logf("Unexpected error at creation: %v", err)
+				return false
+			}
+
+			// Attempt to load - should fail gracefully
+			err = cm.Load()
+			if err == nil {
+				t.Logf("Expected error for missing file, got nil")
+				return false
+			}
+
+			// Verify error message is clear and contains relevant information
+			errMsg := err.Error()
+			if errMsg == "" {
+				t.Logf("Error message is empty")
+				return false
+			}
+
+			// Error should mention it's a config file issue
+			if !contains(errMsg, "config") && !contains(errMsg, "file") {
+				t.Logf("Error message should mention config or file: %s", errMsg)
+				return false
+			}
+
+			return true
+		},
+		gen.AlphaString().SuchThat(func(s string) bool {
+			return len(s) > 0 && len(s) < 100
+		}),
+	))
+
+	properties.Property("malformed JSON fails with clear error", prop.ForAll(
+		func(invalidJSON string) bool {
+			// Create a temporary file with invalid JSON
+			tmpDir := t.TempDir()
+			tmpFile := filepath.Join(tmpDir, "invalid.json")
+
+			if err := os.WriteFile(tmpFile, []byte(invalidJSON), 0644); err != nil {
+				t.Logf("Failed to write temp file: %v", err)
+				return false
+			}
+
+			// Create ConfigManager and attempt to load
+			cm, err := NewConfigManager(tmpFile)
+			if err != nil {
+				t.Logf("Unexpected error at creation: %v", err)
+				return false
+			}
+
+			err = cm.Load()
+			if err == nil {
+				t.Logf("Expected error for malformed JSON, got nil")
+				return false
+			}
+
+			// Verify error message is clear
+			errMsg := err.Error()
+			if errMsg == "" {
+				t.Logf("Error message is empty")
+				return false
+			}
+
+			// Error should mention parsing or config issue
+			if !contains(errMsg, "parse") && !contains(errMsg, "config") {
+				t.Logf("Error message should mention parse or config: %s", errMsg)
+				return false
+			}
+
+			return true
+		},
+		genInvalidJSON(),
+	))
+
+	properties.Property("invalid structure fails with clear error", prop.ForAll(
+		func(invalidConfig string) bool {
+			// Create a temporary file with valid JSON but invalid structure
+			tmpDir := t.TempDir()
+			tmpFile := filepath.Join(tmpDir, "invalid_structure.json")
+
+			if err := os.WriteFile(tmpFile, []byte(invalidConfig), 0644); err != nil {
+				t.Logf("Failed to write temp file: %v", err)
+				return false
+			}
+
+			// Create ConfigManager and attempt to load
+			cm, err := NewConfigManager(tmpFile)
+			if err != nil {
+				t.Logf("Unexpected error at creation: %v", err)
+				return false
+			}
+
+			err = cm.Load()
+			if err == nil {
+				t.Logf("Expected error for invalid structure, got nil")
+				return false
+			}
+
+			// Verify error message is clear
+			errMsg := err.Error()
+			if errMsg == "" {
+				t.Logf("Error message is empty")
+				return false
+			}
+
+			// Error should be informative
+			if !contains(errMsg, "command") && !contains(errMsg, "path") && !contains(errMsg, "commands") {
+				t.Logf("Error message should mention command or path: %s", errMsg)
+				return false
+			}
+
+			return true
+		},
+		genInvalidStructure(),
+	))
+
+	properties.TestingRun(t, gopter.ConsoleReporter(false))
+}
+
+// genInvalidJSON generates various forms of invalid JSON
+func genInvalidJSON() gopter.Gen {
+	return gen.OneConstOf(
+		"not json at all",
+		"{incomplete json",
+		"{'single': 'quotes'}",
+		"{\"missing\": }",
+		"{\"trailing\": \"comma\",}",
+		"[\"array\", \"not\", \"object\"]",
+		"",
+		"null",
+		"123",
+		"{\"nested\": {\"incomplete\": }",
+	)
+}
+
+// genInvalidStructure generates valid JSON with invalid configuration structure
+func genInvalidStructure() gopter.Gen {
+	return gen.OneConstOf(
+		// Missing commands field
+		"{}",
+		// Commands is not an object
+		"{\"commands\": []}",
+		"{\"commands\": \"string\"}",
+		"{\"commands\": 123}",
+		// Empty command name (handled by validation)
+		"{\"commands\": {\"\": {\"path\": \"test.exe\", \"args\": []}}}",
+		// Missing path field
+		"{\"commands\": {\"test\": {\"args\": []}}}",
+		// Empty path
+		"{\"commands\": {\"test\": {\"path\": \"\", \"args\": []}}}",
+		// Path is not a string
+		"{\"commands\": {\"test\": {\"path\": 123, \"args\": []}}}",
+		// Args is not an array
+		"{\"commands\": {\"test\": {\"path\": \"test.exe\", \"args\": \"string\"}}}",
+	)
+}
+
 // Helper function to check if a string contains a substring
 func contains(s, substr string) bool {
-	return len(s) >= len(substr) && (s == substr || len(substr) == 0 || 
+	return len(s) >= len(substr) && (s == substr || len(substr) == 0 ||
 		(len(s) > 0 && len(substr) > 0 && containsHelper(s, substr)))
 }
 
