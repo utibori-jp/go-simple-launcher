@@ -21,9 +21,17 @@ type GUIManager struct {
 
 // NewGUIManager creates a new GUIManager with the specified executor
 func NewGUIManager(exec *executor.Executor) *GUIManager {
+	entry := widget.NewEntry()
+	entry.SetPlaceHolder(("Enter command..."))
+
+	errorLabel := widget.NewLabel("")
+	errorLabel.Hide()
+
 	return &GUIManager{
-		executor: exec,
-		visible:  false,
+		executor:   exec,
+		visible:    false,
+		entry:      entry,
+		errorLabel: errorLabel,
 	}
 }
 
@@ -34,14 +42,6 @@ func (g *GUIManager) Initialize() {
 
 	// Create window
 	g.window = g.app.NewWindow("Launcher")
-
-	// Create text entry widget
-	g.entry = widget.NewEntry()
-	g.entry.SetPlaceHolder("Enter command...")
-
-	// Create error label (initially hidden)
-	g.errorLabel = widget.NewLabel("")
-	g.errorLabel.Hide()
 
 	// Set up Enter key handler to execute commands
 	g.entry.OnSubmitted = func(text string) {

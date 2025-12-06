@@ -7,7 +7,10 @@ require (
 	github.com/leanovate/gopter v0.2.11
 )
 
+require github.com/goki/freetype v0.0.0-20181231101311-fa8a33aabaff // indirect
+
 require (
+	fyne.io/fyne v1.4.3
 	fyne.io/systray v1.11.1-0.20250603113521-ca66a66d8b58 // indirect
 	github.com/BurntSushi/toml v1.5.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect

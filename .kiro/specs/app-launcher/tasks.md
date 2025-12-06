@@ -53,7 +53,7 @@
   - Test handling permission denied errors
   - _Requirements: 5.1, 5.2, 5.3_
 
-- [ ] 4. Implement GUI manager with Fyne
+- [x] 4. Implement GUI manager with Fyne
   - Create GUIManager struct with Fyne app and window
   - Implement Initialize() to create window with text entry widget
   - Implement Show() and Hide() methods for window visibility
@@ -64,11 +64,11 @@
   - Configure window to be always on top and centered
   - _Requirements: 1.2, 1.4, 2.1, 2.3, 2.4, 2.5_
 
-- [ ]* 4.1 Write property test for window visibility toggle
+- [x] 4.1 Write property test for window visibility toggle
   - **Property 1: Hotkey toggles window visibility**
   - **Validates: Requirements 1.1, 1.3**
 
-- [ ]* 4.2 Write property test for input focus
+- [x] 4.2 Write property test for input focus
   - **Property 2: Window show focuses input field**
   - **Validates: Requirements 1.2**
 
