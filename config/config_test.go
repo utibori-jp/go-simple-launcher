@@ -153,3 +153,118 @@ func genNonEmptyPath() gopter.Gen {
 		"./relative/path/app.exe",
 	)
 }
+
+// Unit Tests for Configuration Management
+
+// TestLoadValidConfiguration tests loading a valid configuration file with multiple commands
+func TestLoadValidConfiguration(t *testing.T) {
+	// Use the valid test configuration
+	cm, err := NewConfigManager("../testdata/valid_config.json")
+	if err != nil {
+		t.Fatalf("Failed to create ConfigManager: %v", err)
+	}
+
+	err = cm.Load()
+	if err != nil {
+		t.Fatalf("Failed to load valid configuration: %v", err)
+	}
+
+	// Verify all expected commands are loaded
+	expectedCommands := []string{"browser", "editor", "terminal", "notepad"}
+	for _, cmdName := range expectedCommands {
+		cmd, exists := cm.GetCommand(cmdName)
+		if !exists {
+			t.Errorf("Expected command '%s' not found", cmdName)
+		}
+		if cmd.Path == "" {
+			t.Errorf("Command '%s' has empty path", cmdName)
+		}
+	}
+
+	// Verify specific command details
+	editor, exists := cm.GetCommand("editor")
+	if !exists {
+		t.Fatal("Editor command not found")
+	}
+	if editor.Path != "C:\\Program Files\\Microsoft VS Code\\Code.exe" {
+		t.Errorf("Editor path mismatch: got '%s'", editor.Path)
+	}
+	if len(editor.Args) != 1 || editor.Args[0] != "-n" {
+		t.Errorf("Editor args mismatch: got %v", editor.Args)
+	}
+}
+
+// TestLoadMissingConfigFile tests handling of a missing configuration file
+func TestLoadMissingConfigFile(t *testing.T) {
+	// Try to load a non-existent file
+	cm, err := NewConfigManager("../testdata/nonexistent_config.json")
+	if err != nil {
+		t.Fatalf("Failed to create ConfigManager: %v", err)
+	}
+
+	err = cm.Load()
+	if err == nil {
+		t.Fatal("Expected error when loading missing config file, got nil")
+	}
+
+	// Verify error message indicates file not found
+	expectedSubstring := "failed to read config file"
+	if !contains(err.Error(), expectedSubstring) {
+		t.Errorf("Error message should contain '%s', got: %v", expectedSubstring, err)
+	}
+}
+
+// TestLoadMalformedJSON tests handling of malformed JSON
+func TestLoadMalformedJSON(t *testing.T) {
+	// Use the invalid test configuration (malformed JSON)
+	cm, err := NewConfigManager("../testdata/invalid_config.json")
+	if err != nil {
+		t.Fatalf("Failed to create ConfigManager: %v", err)
+	}
+
+	err = cm.Load()
+	if err == nil {
+		t.Fatal("Expected error when loading malformed JSON, got nil")
+	}
+
+	// Verify error message indicates JSON parsing failure
+	expectedSubstring := "failed to parse config file"
+	if !contains(err.Error(), expectedSubstring) {
+		t.Errorf("Error message should contain '%s', got: %v", expectedSubstring, err)
+	}
+}
+
+// TestLoadEmptyConfiguration tests handling of an empty configuration
+func TestLoadEmptyConfiguration(t *testing.T) {
+	// Use the empty test configuration
+	cm, err := NewConfigManager("../testdata/empty_config.json")
+	if err != nil {
+		t.Fatalf("Failed to create ConfigManager: %v", err)
+	}
+
+	err = cm.Load()
+	if err != nil {
+		t.Fatalf("Failed to load empty configuration: %v", err)
+	}
+
+	// Verify that no commands are available
+	cmd, exists := cm.GetCommand("anycommand")
+	if exists {
+		t.Errorf("Expected no commands in empty config, but found: %v", cmd)
+	}
+}
+
+// Helper function to check if a string contains a substring
+func contains(s, substr string) bool {
+	return len(s) >= len(substr) && (s == substr || len(substr) == 0 || 
+		(len(s) > 0 && len(substr) > 0 && containsHelper(s, substr)))
+}
+
+func containsHelper(s, substr string) bool {
+	for i := 0; i <= len(s)-len(substr); i++ {
+		if s[i:i+len(substr)] == substr {
+			return true
+		}
+	}
+	return false
+}

@@ -19,7 +19,7 @@
   - **Property 7: Valid JSON configurations load completely**
   - **Validates: Requirements 3.2**
 
-- [ ]* 2.2 Write unit tests for configuration management
+- [x] 2.2 Write unit tests for configuration management
   - Test loading valid configuration with multiple commands
   - Test handling missing configuration file
   - Test handling malformed JSON
@@ -27,6 +27,7 @@
   - _Requirements: 3.1, 3.2, 3.3_
 
 - [ ] 3. Implement application executor
+
   - Create Executor struct with reference to ConfigManager
   - Implement Execute() method to lookup commands and launch applications
   - Use exec.Command() to start processes without blocking
