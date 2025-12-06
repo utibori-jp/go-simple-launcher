@@ -1,0 +1,8 @@
+{
+  "commands": {
+    "browser": {
+      "path": "C:\\Program Files\\Mozilla Firefox\\firefox.exe",
+      "args": []
+    },
+    "missing_closing_brace": {
+      "path": "C:\\Windows\\System32\\cmd.exe"

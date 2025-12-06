@@ -1,0 +1,20 @@
+{
+  "commands": {
+    "browser": {
+      "path": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+      "args": []
+    },
+    "editor": {
+      "path": "C:\\Program Files\\Microsoft VS Code\\Code.exe",
+      "args": ["-n"]
+    },
+    "terminal": {
+      "path": "C:\\Windows\\System32\\cmd.exe",
+      "args": []
+    },
+    "notepad": {
+      "path": "C:\\Windows\\System32\\notepad.exe",
+      "args": []
+    }
+  }
+}
