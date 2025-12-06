@@ -34,27 +34,19 @@
   - Return detailed errors for launch failures
   - _Requirements: 2.1, 2.2, 5.1, 5.2, 5.4_
 
-- [ ] 3.1 Write property test for valid command execution
-
-
+- [x] 3.1 Write property test for valid command execution
   - **Property 3: Valid commands execute correctly**
   - **Validates: Requirements 2.1, 2.2, 5.1, 5.2**
 
-- [ ] 3.2 Write property test for non-blocking execution
-
-
+- [x] 3.2 Write property test for non-blocking execution
   - **Property 10: Application launch is non-blocking**
   - **Validates: Requirements 5.4**
 
-- [ ] 3.3 Write property test for launch failure handling
-
-
+- [x] 3.3 Write property test for launch failure handling
   - **Property 9: Launch failures show error details**
   - **Validates: Requirements 5.3**
 
-- [ ] 3.4 Write unit tests for executor
-
-
+- [x] 3.4 Write unit tests for executor
   - Test executing command without arguments
   - Test executing command with multiple arguments
   - Test handling non-existent executable path

@@ -28,7 +28,7 @@ func NewConfigManager(configPath string) (*ConfigManager, error) {
 	if configPath == "" {
 		return nil, fmt.Errorf("config path cannot be empty")
 	}
-	
+
 	return &ConfigManager{
 		configPath: configPath,
 		commands:   make(map[string]Command),

@@ -9,13 +9,18 @@ import (
 	"app-launcher/config"
 )
 
+type ConfigProvider interface {
+	GetCommand(name string) (config.Command, bool)
+	Load() error
+}
+
 // Executor handles command execution and application launching
 type Executor struct {
-	config *config.ConfigManager
+	config ConfigProvider
 }
 
 // NewExecutor creates a new Executor with the specified ConfigManager
-func NewExecutor(cfg *config.ConfigManager) *Executor {
+func NewExecutor(cfg ConfigProvider) *Executor {
 	return &Executor{
 		config: cfg,
 	}
@@ -49,7 +54,7 @@ func (e *Executor) Execute(commandName string) error {
 func normalizePath(path string) string {
 	// Replace forward slashes with backslashes
 	normalized := strings.ReplaceAll(path, "/", string(filepath.Separator))
-	
+
 	// Use filepath.Clean to normalize the path further
 	return filepath.Clean(normalized)
 }
