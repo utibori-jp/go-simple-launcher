@@ -71,6 +71,7 @@ func (g *GUIManager) Initialize() {
 
 	// Don't show window initially
 	g.visible = false
+	g.window.Show()
 	logger.Info("GUI manager initialized successfully")
 }
 
