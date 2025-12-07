@@ -158,6 +158,14 @@ A comprehensive example configuration with common Windows applications:
     "explorer": {
       "path": "C:\\Windows\\explorer.exe",
       "args": []
+    },
+    "paint": {
+      "path": "C:\\Windows\\System32\\mspaint.exe",
+      "args": []
+    },
+    "wordpad": {
+      "path": "C:\\Program Files\\Windows NT\\Accessories\\wordpad.exe",
+      "args": []
     }
   }
 }
@@ -213,14 +221,38 @@ The launcher provides clear error messages for common issues:
 
 ### Prerequisites
 
-- Go 1.21 or later
+- Go 1.23 or later
 - Windows operating system
+
+### Project Structure
+
+```
+app-launcher/
+├── config/          # Configuration management
+├── executor/        # Application execution logic
+├── gui/             # Fyne-based GUI components
+├── hotkey/          # Global hotkey registration
+├── logger/          # Logging utilities
+├── testdata/        # Test fixtures
+├── main.go          # Application entry point
+├── config.json      # Example configuration
+└── go.mod           # Go module dependencies
+```
 
 ### Dependencies
 
+The project uses the following main dependencies:
+
 ```cmd
 go get fyne.io/fyne/v2
-go get github.com/golang-design/hotkey
+go get github.com/moutend/go-hook
+go get github.com/leanovate/gopter  # For property-based testing
+```
+
+Or simply run:
+
+```cmd
+go mod download
 ```
 
 ### Build
@@ -231,8 +263,24 @@ go build -o launcher.exe
 
 ### Run Tests
 
+Run all tests including unit tests and property-based tests:
+
 ```cmd
 go test ./...
+```
+
+Run tests with verbose output:
+
+```cmd
+go test -v ./...
+```
+
+Run tests for a specific package:
+
+```cmd
+go test ./gui
+go test ./config
+go test ./executor
 ```
 
 ## Troubleshooting
@@ -263,12 +311,26 @@ go test ./...
 
 ## Logging
 
-The launcher logs all operations to stderr with timestamps:
+The launcher logs all operations to stderr with timestamps in the format `[YYYY-MM-DD HH:MM:SS] LEVEL: message`:
 
 - Application startup and initialization
 - Configuration loading
 - Command execution attempts
 - Errors and warnings
+
+**Log Levels**:
+- `INFO`: Normal operations and status messages
+- `WARN`: Warning messages (non-critical issues)
+- `ERROR`: Error messages (operation failures)
+- `FATAL`: Critical errors that cause the application to exit
+
+**Example log output**:
+```
+[2025-12-07 09:31:30] INFO: Application launcher starting
+[2025-12-07 09:31:30] INFO: Configuration path: C:\Users\...\config.json
+[2025-12-07 09:31:30] INFO: Hotkey: Alt+Space
+[2025-12-07 09:31:30] INFO: Successfully launched application for command 'chrome' (PID: 12345)
+```
 
 To capture logs to a file:
 
