@@ -5,7 +5,6 @@ import (
 	"app-launcher/logger"
 
 	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
 )
@@ -21,7 +20,7 @@ type GUIManager struct {
 }
 
 // NewGUIManager creates a new GUIManager with the specified executor
-func NewGUIManager(exec *executor.Executor) *GUIManager {
+func NewGUIManager(exec *executor.Executor, app fyne.App) *GUIManager {
 	entry := widget.NewEntry()
 	entry.SetPlaceHolder(("Enter command..."))
 
@@ -29,6 +28,7 @@ func NewGUIManager(exec *executor.Executor) *GUIManager {
 	errorLabel.Hide()
 
 	return &GUIManager{
+		app:        app,
 		executor:   exec,
 		visible:    false,
 		entry:      entry,
@@ -39,9 +39,6 @@ func NewGUIManager(exec *executor.Executor) *GUIManager {
 // Initialize creates the Fyne window with text entry widget and configures it
 func (g *GUIManager) Initialize() {
 	logger.Info("Initializing GUI manager")
-
-	// Create Fyne application
-	g.app = app.New()
 
 	// Create window
 	g.window = g.app.NewWindow("Launcher")

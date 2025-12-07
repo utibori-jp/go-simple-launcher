@@ -122,7 +122,7 @@ func TestProperty_WindowShowFocusesInputField(t *testing.T) {
 
 	// Initialize GUIManager
 	// We manually inject the test window to the manager since NewGUIManager might create a real one
-	gui := NewGUIManager(exec)
+	gui := NewGUIManager(exec, testApp)
 	gui.window = w
 
 	// Ensure UI components are built (Entry, Label, etc.)
@@ -195,9 +195,8 @@ func TestProperty_WindowShowFocusesInputField(t *testing.T) {
 // correctly injected, UI components initialized, and the window in a hidden state.
 func TestNewGUIManager(t *testing.T) {
 	// 1. Initialize Fyne test driver
-	// We assign to blank identifier (_) because we need the side effect (driver init)
-	// to prevent crashes during widget creation, but we don't need the App instance here.
-	_ = test.NewApp()
+	// Create a test Fyne app
+	testApp := test.NewApp()
 
 	// 2. Setup Mock dependencies (avoid file I/O)
 	mockCfg := &MockConfigManager{
@@ -206,7 +205,7 @@ func TestNewGUIManager(t *testing.T) {
 	exec := executor.NewExecutor(mockCfg)
 
 	// 3. Create the object under test
-	gui := NewGUIManager(exec)
+	gui := NewGUIManager(exec, testApp)
 
 	// 4. Verification (Assertions)
 
