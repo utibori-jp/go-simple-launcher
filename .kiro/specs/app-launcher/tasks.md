@@ -135,5 +135,5 @@
   - Document command-line flags (--config, --hotkey)
   - _Requirements: 4.1_
 
-- [ ] 9. Final checkpoint - Ensure all tests pass
+- [x] 9. Final checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
