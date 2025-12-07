@@ -99,9 +99,7 @@ func TestRegisterValidHotkey(t *testing.T) {
 			}
 
 			// Clean up
-			if hm.hk != nil {
-				hm.Stop()
-			}
+			hm.Stop()
 		})
 	}
 }

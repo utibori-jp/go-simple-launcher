@@ -12,6 +12,7 @@ import (
 	"app-launcher/hotkey"
 	"app-launcher/logger"
 
+	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/dialog"
 )
 
@@ -46,8 +47,11 @@ func NewApp(configPath, hotkeyStr string) (*App, error) {
 	exec := executor.NewExecutor(configManager)
 	logger.Info("Executor initialized")
 
+	// Create Fyne application
+	fyneApp := app.New()
+
 	// Initialize GUIManager
-	guiManager := gui.NewGUIManager(exec)
+	guiManager := gui.NewGUIManager(exec, fyneApp)
 	guiManager.Initialize()
 
 	// Initialize HotkeyManager with toggle callback
@@ -131,29 +135,26 @@ func main() {
 	logger.Info("Application launcher starting")
 	logger.Info("Command-line arguments: config=%s, hotkey=%s", *configPath, *hotkeyStr)
 
-	// The hotkey library requires mainthread initialization
-	hotkey.Init(func() {
-		// Create the app
-		app, err := NewApp(*configPath, *hotkeyStr)
-		if err != nil {
-			// Log detailed error information
-			logger.Fatal("Failed to initialize launcher: %v", err)
+	// Create the app
+	app, err := NewApp(*configPath, *hotkeyStr)
+	if err != nil {
+		// Log detailed error information
+		logger.Fatal("Failed to initialize launcher: %v", err)
 
-			// Try to show GUI error if possible
-			if app != nil && app.gui != nil {
-				dialog.ShowError(err, nil)
-			}
-
-			os.Exit(1)
+		// Try to show GUI error if possible
+		if app != nil && app.gui != nil {
+			dialog.ShowError(err, nil)
 		}
 
-		// Ensure cleanup on exit
-		defer app.Shutdown()
+		os.Exit(1)
+	}
 
-		// Run the application
-		if err := app.Run(); err != nil {
-			logger.Fatal("Application error: %v", err)
-			os.Exit(1)
-		}
-	})
+	// Ensure cleanup on exit
+	defer app.Shutdown()
+
+	// Run the application
+	if err := app.Run(); err != nil {
+		logger.Fatal("Application error: %v", err)
+		os.Exit(1)
+	}
 }
